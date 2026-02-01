@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { LoadingScreen } from "../components/LoadingScreen";
 
 const NO_TEXTS = [
@@ -19,9 +19,61 @@ const NO_TEXTS = [
   { text: "Last chance… pretty please? 🥺", image: "/image14.jpeg" },
 ];
 
+function clamp(n: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, n));
+}
 export default function Home() {
   const [loading, setLoading] = useState(true);
+  const [noClicks, setNoClicks] = useState(0);
+  const [accepted, setAccepted] = useState(false);
+  const [imageKey, setImageKey] = useState(0);
+  const [noPosition, setNoPosition] = useState<{
+    top: string | number;
+    left: string | number;
+    position: "static" | "fixed";
+  }>({
+    top: "auto",
+    left: "auto",
+    position: "static",
+  });
 
+  const yesScale = useMemo(() => {
+    const s = Math.pow(1.15, noClicks);
+    return clamp(s, 1, 6);
+  }, [noClicks]);
+
+  const noScale = useMemo(() => {
+    // Shrink by 10% per click, minimum 0.3 (30% of original size)
+    const s = Math.pow(0.9, noClicks);
+    return clamp(s, 0.3, 1);
+  }, [noClicks]);
+
+  // Get the current no text and image based on noClicks
+  const noItem = NO_TEXTS[Math.min(noClicks, NO_TEXTS.length - 1)];
+  const currentImage = noItem.image;
+  const noLabel = noItem.text;
+
+  // Collect all images to preload (including yes-image.gif)
+  const allImagesToPreload = useMemo(() => {
+    const images = NO_TEXTS.map((item) => item.image);
+    images.push("/yes-image.gif"); // Add the success image
+    return images;
+  }, []);
+
+  function handleNoClick() {
+    setNoClicks((c) => c + 1);
+    setImageKey((k) => k + 1); // Trigger re-animation
+
+    // Move to random position
+    const randomTop = Math.floor(Math.random() * 80) + 10; // 10% to 90%
+    const randomLeft = Math.floor(Math.random() * 80) + 10; // 10% to 90%
+
+    setNoPosition({
+      top: `${randomTop}%`,
+      left: `${randomLeft}%`,
+      position: "fixed",
+    });
+  }
   function postAboutit() {
     const url = new URL("https://twitter.com/intent/tweet");
     url.searchParams.set(
