@@ -90,3 +90,40 @@ export default function Home() {
     </div>
   );
 }
+
+<form onSubmit={handleSubmit}>
+  <div className="w-full mb-[15px]">
+    <p className="text-main-900 mb-1 font-medium text-sm">Email Address</p>
+    <TextField
+      id="email"
+      InputProps={{
+        className: "rounded-[11px] px-3",
+        startAdornment: (
+          <EmailOutlinedIcon className="text-xl text-sub-500 mr-2" />
+        ),
+      }}
+      type="email"
+      value={values.email}
+      placeholder="anu21@gmail.com"
+      onChange={handleChange}
+      error={touched.email && !!errors.email}
+      helperText={touched.email ? errors.email : ""}
+      fullWidth
+    />{" "}
+  </div>
+  <Button
+    type="submit"
+    disabled={isSubmitting}
+    className="text-sm mt-6 py-2.5 px-2 rounded-[10px]"
+    fullWidth
+  >
+    {isSubmitting ? (
+      <>
+        <CircularProgress color="inherit" className="text-white" size={22} />
+        <span className="sr-only">Submitting</span>
+      </>
+    ) : (
+      "Get Started"
+    )}
+  </Button>
+</form>;
